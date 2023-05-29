@@ -65,7 +65,7 @@ const ModalDlg = () => {
 
     e.preventDefault();
     // let EventData = new FormData();
-    console.log(e);
+    console.log("log", e);
     // navigate("/", { state: EventData });
   };
 
