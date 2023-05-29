@@ -1,5 +1,5 @@
 import * as React from "react";
-// import * as ReactDOM from 'react-dom';
+
 import { guid } from "@progress/kendo-react-common";
 import { timezoneNames } from "@progress/kendo-date-math";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
@@ -15,20 +15,8 @@ import {
   WeekView,
   MonthView,
   AgendaView,
-  SchedulerItem,
 } from "@progress/kendo-react-scheduler";
-import { Popup } from "@progress/kendo-react-popup";
-import { Button } from "@progress/kendo-react-buttons";
-import { useInternationalization } from "@progress/kendo-react-intl";
-import { Link, useLocation } from 'react-router-dom';
-// import weekData from 'cldr-core/supplemental/weekData.json';
-// import currencyData from 'cldr-core/supplemental/currencyData.json';
-// import likelySubtags from 'cldr-core/supplemental/likelySubtags.json';
-// import numbers from 'cldr-numbers-full/main/es/numbers.json';
-// import dateFields from 'cldr-dates-full/main/es/dateFields.json';
-// import currencies from 'cldr-numbers-full/main/es/currencies.json';
-// import caGregorian from 'cldr-dates-full/main/es/ca-gregorian.json';
-// import timeZoneNames from 'cldr-dates-full/main/es/timeZoneNames.json';
+import { Dialog } from "@progress/kendo-react-dialogs";
 
 import "@progress/kendo-date-math/tz/Etc/UTC";
 import "@progress/kendo-date-math/tz/Europe/Sofia";
@@ -38,86 +26,25 @@ import "@progress/kendo-date-math/tz/Asia/Tokyo";
 import "@progress/kendo-date-math/tz/America/New_York";
 import "@progress/kendo-date-math/tz/America/Los_Angeles";
 import "../themes/kendo-theme-ocean-blue.scss";
+
 import esMessages from "./es.json";
 import {
   sampleDataWithCustomSchema,
   displayDate,
   customModelFields,
 } from "./events-utc";
-// load(likelySubtags, currencyData, weekData, numbers, currencies, caGregorian, dateFields, timeZoneNames);
+import EventDlg from "../components/AddTask";
+import { CustomItem } from "../components/schedule_item";
+
 loadMessages(esMessages, "es-ES");
 
-const CustomItem = (props) => {
-  const ref = React.useRef(null);
-  const intl = useInternationalization();
-  const [show, setShow] = React.useState(false);
-  const { onFocus, onBlur } = props;
-  const handleFocus = React.useCallback(
-    (event) => {
-      setShow(true);
+const Home = () => {
+  // 'Add_Event' Dialoge of Visible
+  const [visible, setVisible] = React.useState(false);
+  const toggleDialog = () => {
+    setVisible(!visible);
+  };
 
-      // Call the default `onFocus` handler
-      if (onFocus) {
-        onFocus(event);
-      }
-    },
-    [onFocus]
-  );
-  const handleBlur = React.useCallback(
-    (event) => {
-      setShow(false);
-
-      // Call the default `onBlur` handler
-      if (onBlur) {
-        onBlur(event);
-      }
-    },
-    [onBlur]
-  );
-  return (
-    <React.Fragment>
-      <SchedulerItem
-        {...props}
-        style={{
-          ...props.style,
-        }}
-        ref={ref}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
-      <Popup
-        show={show}
-        anchorAlign={{
-          horizontal: "center",
-          vertical: "top",
-        }}
-        popupAlign={{
-          horizontal: "center",
-          vertical: "bottom",
-        }}
-        anchor={ref.current && ref.current.element}
-      >
-        <div
-          className="rounded"
-          style={{
-            overflow: "hidden",
-          }}
-        >
-          <div className="p-1">
-            <h6>Title:{props.title}</h6>
-            <h6>Description:{props.description}</h6>
-            <div>Start: {intl.formatDate(props.zonedStart, "t")}</div>
-            <div>End: {intl.formatDate(props.zonedEnd, "t")}</div>
-          </div>
-        </div>
-      </Popup>
-    </React.Fragment>
-  );
-};
-
-const Schedule_comp = (props) => {
-  const location = useLocation();
-  console.log(location, "location")
   const timezones = React.useMemo(() => timezoneNames(), []);
   const locales = [
     {
@@ -190,16 +117,50 @@ const Schedule_comp = (props) => {
             )
           )
       );
+      console.log({ created, updated, deleted });
     },
     [setData]
   );
 
+  // From Dialoge, Close Dialoge
+  const onEvent = (Edata) => {
+    if (Edata === "Cancel") {
+      toggleDialog();
+      return;
+    }
+    let start = new Date();
+    let end = new Date();
+
+    start.setTime(Edata.start_time.getTime());
+    start.setHours(Edata.start_time.getHours() + 8);
+    start.setDate(Edata.start_date.getDate());
+    start.setMonth(Edata.start_date.getMonth());
+
+    end.setTime(Edata.end_time.getTime());
+    end.setHours(Edata.end_time.getHours() + 8);
+    end.setDate(Edata.end_date.getDate());
+    end.setMonth(Edata.end_date.getMonth());
+
+    let createData = {
+      Title: Edata.title,
+      Start: start,
+      End: end,
+      PersonIDs: Edata.persons + 1,
+      RoomID: Edata.rooms + 1,
+      Description: Edata.description,
+      isAllDay: false,
+    };
+    let cData = new Array(1);
+    cData[0] = createData;
+    toggleDialog();
+    handleDataChange({ created: cData, updated: [], deleted: [] });
+  };
 
   return (
     <div>
       <div className="example-config">
         <div className="row">
-          <div className="col">
+          <div className="col mb-3">
             <h5>Timezone:</h5>
             <DropDownList
               value={timezone}
@@ -207,7 +168,7 @@ const Schedule_comp = (props) => {
               data={timezones}
             />
           </div>
-          <div className="col">
+          <div className="col mb-3">
             <h5>Locale:</h5>
             <DropDownList
               value={locale}
@@ -246,7 +207,12 @@ const Schedule_comp = (props) => {
             </label>
           </div>
           <div className="col">
-            <Link to="/AddEvent" className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">+ Add</Link>
+            <button
+              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
+              onClick={toggleDialog}
+            >
+              + Event
+            </button>
           </div>
         </div>
       </div>
@@ -261,7 +227,7 @@ const Schedule_comp = (props) => {
             onDateChange={handleDateChange}
             editable={{
               select: true,
-              remove: false,
+              remove: true,
               drag: true,
               resize: true,
               add: true,
@@ -319,8 +285,13 @@ const Schedule_comp = (props) => {
           </Scheduler>
         </IntlProvider>
       </LocalizationProvider>
+      {visible && (
+        <Dialog title={"Event"} onClose={toggleDialog}>
+          <EventDlg onEvent={onEvent} />
+        </Dialog>
+      )}
     </div>
   );
 };
 
-export default Schedule_comp;
+export default Home;
