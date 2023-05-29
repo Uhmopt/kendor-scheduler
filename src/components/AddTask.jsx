@@ -15,6 +15,33 @@ import { ButtonGroup, Button } from "@progress/kendo-react-buttons";
 
 const roomdata = ["Meeting Room 101", "Meeting Room 201"];
 const persondata = ["Peter", "Alex"];
+const MonthData = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const DayData = [
+  "Day",
+  "Weekday",
+  "WeekendDay",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+const nowDay = new Number(new Date().getDay());
 const repeat_rdata = [
   {
     label: "Never",
@@ -36,13 +63,13 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
     setDateValue(value);
   };
 
-  // Repeat-Tab Change
+  // Repeat-Tab ChangeEvent
   const [tabSelected, setTabSelected] = React.useState(0);
   const handleTabSelect = (e) => {
     setTabSelected(e.selected);
   };
 
-  // Repeat-radio Change
+  // Repeat-radio ChangeEvent
   const [rval, setRval] = React.useState("Never");
   const onChangeRptRadio = (e) => {
     setRval(e.value);
@@ -62,6 +89,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
     rooms: 0,
     persons: 0,
     description: "",
+    isAllDay: false,
   });
 
   const onChangeValue = (e) => {
@@ -74,16 +102,18 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
     // DropDownList of 'persons'
     if (name === "persons") value = persondata.indexOf(value);
 
+    // CheckBox of 'All Day Event'
+    if (name === "isAllDay") value = !EventData.isAllDay;
     setEventData({ ...EventData, [name]: value });
   };
 
-  // 'Save' Button Click
+  // 'Save' Button ClickEvent
   const onSave = (e) => {
     e.preventDefault();
     onEvent(EventData);
   };
 
-  // 'Cancel' Button Click
+  // 'Cancel' Button ClickEvent
   const onCancel = () => {
     onEvent("Cancel");
   };
@@ -115,6 +145,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 name="start_time"
                 value={EventData.start_time}
                 onChange={onChangeValue}
+                disabled={EventData.isAllDay === true}
               />
             </div>
           </div>
@@ -141,6 +172,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 name="end_time"
                 value={EventData.end_time}
                 onChange={onChangeValue}
+                disabled={EventData.isAllDay === true}
               />
             </div>
           </div>
@@ -149,7 +181,11 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
       <br />
 
       {/* 'All Day Event' of CheckBox */}
-      <Checkbox defaultChecked={false} />
+      <Checkbox
+        defaultChecked={false}
+        name="isAllDay"
+        onChange={onChangeValue}
+      />
       <br />
       <Label className="pr-10">All Day Event</Label>
       <br />
@@ -167,7 +203,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 <div className="col-10 p-0 mb-3">
                   <NumericTextBox defaultValue={1} min={1} />
                 </div>
-                <div className="col-1 mt-2">{"day(s)"}</div>
+                <div className="col-1">{"day(s)"}</div>
               </div>
               <Label>End</Label>
               <div className="row">
@@ -180,13 +216,13 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                     onChange={onChangeRptRadio}
                   />
                 </div>
-                <div className="col-8">
+                <div className="col-6">
                   <br />
                   <NumericTextBox
                     defaultValue={1}
                     min={1}
                     width={80}
-                    style={{ margin: "10px 0" }}
+                    style={{ margin: "1% 0" }}
                     name="after_rpt"
                     disabled={rval !== "After"}
                   />
@@ -205,9 +241,9 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
               <Label>Repeat every</Label>
               <div className="row">
                 <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} />
+                  <NumericTextBox defaultValue={1} min={1} max={5} />
                 </div>
-                <div className="col-1 mt-2">{"week(s)"}</div>
+                <div className="col-1">{"week(s)"}</div>
               </div>
               <Label>Repeat On</Label>
               <div className="row pr-10">
@@ -232,7 +268,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                     onChange={onChangeRptRadio}
                   />
                 </div>
-                <div className="col-8">
+                <div className="col-6">
                   <br />
                   <NumericTextBox
                     defaultValue={1}
@@ -257,9 +293,9 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
               <Label>Repeat every</Label>
               <div className="row">
                 <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} min={1} />
+                  <NumericTextBox defaultValue={1} min={1} max={12} />
                 </div>
-                <div className="col-1 mt-2">{"month(s)"}</div>
+                <div className="col-1">{"month(s)"}</div>
               </div>
               <Label>Repeat On</Label>
               <div className="row pr-10">
@@ -272,8 +308,9 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 />
                 <div className="col-6">
                   <NumericTextBox
-                    defaultValue={5}
+                    defaultValue={new Date().getDate()}
                     min={1}
+                    max={31}
                     disabled={ron !== "D"}
                     style={{
                       minWidth: "80px",
@@ -290,15 +327,20 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 ></RadioButton>
                 <DropDownList
                   data={["First", "Second", "Third", "Fourth", "Last"]}
-                  value={"First"}
-                  style={{ width: "20%", minWidth: "100px", marginRight: "1%" }}
+                  defaultValue={"First"}
+                  style={{
+                    width: "20%",
+                    minWidth: "100px",
+                    marginRight: "2%",
+                    marginLeft: "1%",
+                  }}
                   disabled={ron !== "F"}
                 />
                 <DropDownList
-                  data={["First", "Second", "Third", "Fourth", "Last"]}
-                  value={"First"}
+                  data={DayData}
+                  defaultValue={"Day"}
                   disabled={ron !== "F"}
-                  style={{ width: "20%", minWidth: "100px" }}
+                  style={{ width: "27%", minWidth: "110px" }}
                 />
               </div>
               <Label>End</Label>
@@ -312,13 +354,13 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                     onChange={onChangeRptRadio}
                   />
                 </div>
-                <div className="col-8">
+                <div className="col-6">
                   <br />
                   <NumericTextBox
                     defaultValue={1}
                     min={1}
                     width={80}
-                    style={{ margin: "10px 0" }}
+                    style={{ margin: "1% 0" }}
                     name="after_rpt"
                     disabled={rval !== "After"}
                   />
@@ -332,13 +374,14 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 </div>
               </div>
             </TabStripTab>
+
             <TabStripTab title="YEARLY">
               <Label>Repeat every</Label>
               <div className="row">
                 <div className="col-10 p-0 mb-3">
                   <NumericTextBox defaultValue={1} min={1} />
                 </div>
-                <div className="col-1 mt-2">{"year(s)"}</div>
+                <div className="col-1">{"year(s)"}</div>
               </div>
               <Label>Repeat On</Label>
               <div className="row pr-10">
@@ -348,17 +391,17 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                   onChange={ChangeRepeatOn}
                   checked={ron === "D"}
                 />
-                <NumericTextBox
-                  defaultValue={5}
-                  min={1}
-                  width="20%"
-                  style={{ marginRight: "1%" }}
+                <DropDownList
+                  data={MonthData}
+                  defaultValue={MonthData[new Date().getMonth()]}
+                  style={{ marginRight: "1%", width: "40%", marginLeft: "2%" }}
                   disabled={ron !== "D"}
                 />
                 <NumericTextBox
-                  defaultValue={1}
+                  defaultValue={new Date().getDate()}
                   min={1}
-                  width="45%"
+                  max={31}
+                  width="20%"
                   disabled={ron !== "D"}
                 />
               </div>
@@ -371,22 +414,22 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                 />
                 <DropDownList
                   data={["First", "Second", "Third", "Fourth", "Last"]}
-                  value={"First"}
+                  defaultValue={"First"}
                   disabled={ron !== "F"}
-                  style={{ width: "20%", marginRight: "1%" }}
+                  style={{ width: "22%", marginRight: "2%", marginLeft: "2%" }}
                 />
                 <DropDownList
-                  data={["First", "Second", "Third", "Fourth", "Last"]}
-                  value={"First"}
+                  data={DayData}
+                  defaultValue={"Day"}
                   disabled={ron !== "F"}
-                  style={{ width: "20%", marginRight: "1%" }}
+                  style={{ width: "25%", marginRight: "2%" }}
                 />
                 {` of `}
                 <DropDownList
-                  data={["First", "Second", "Third", "Fourth", "Last"]}
-                  value={"First"}
+                  data={MonthData}
+                  defaultValue={MonthData[new Date().getMonth()]}
                   disabled={ron !== "F"}
-                  style={{ width: "20%", marginLeft: "1%" }}
+                  style={{ width: "25%", marginLeft: "2%" }}
                 />
               </div>
               <Label>End</Label>
@@ -406,7 +449,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                     defaultValue={1}
                     min={1}
                     width={80}
-                    style={{ margin: "10px 0" }}
+                    style={{ margin: "1% 0" }}
                     name="after_rpt"
                     disabled={rval !== "After"}
                   />

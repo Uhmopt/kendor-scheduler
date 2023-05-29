@@ -131,15 +131,19 @@ const Home = () => {
     let start = new Date();
     let end = new Date();
 
-    start.setTime(Edata.start_time.getTime());
+    if (Edata.isAllDay) start.setTime(0);
+    else start.setTime(Edata.start_time.getTime());
     start.setHours(Edata.start_time.getHours() + 8);
     start.setDate(Edata.start_date.getDate());
     start.setMonth(Edata.start_date.getMonth());
+    start.setFullYear(new Date().getFullYear());
 
-    end.setTime(Edata.end_time.getTime());
+    if (Edata.isAllDay) end.setTime(0);
+    else end.setTime(Edata.end_time.getTime());
     end.setHours(Edata.end_time.getHours() + 8);
     end.setDate(Edata.end_date.getDate());
     end.setMonth(Edata.end_date.getMonth());
+    end.setFullYear(new Date().getFullYear());
 
     let createData = {
       Title: Edata.title,
@@ -148,7 +152,7 @@ const Home = () => {
       PersonIDs: Edata.persons + 1,
       RoomID: Edata.rooms + 1,
       Description: Edata.description,
-      isAllDay: false,
+      isAllDay: Edata.isAllDay,
     };
     let cData = new Array(1);
     cData[0] = createData;

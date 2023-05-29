@@ -131,6 +131,9 @@ body {
 
 .row {
   margin: 0 !important;
+  display: flex !important;
+  justify-content: left !important;
+  align-items: center !important;
 }
 
 .pr-10 {
@@ -147,4 +150,10 @@ body {
 
 .mt-2 {
   margin-top: 2px !important;
+}
+
+.items_center {
+  display: flex !important;
+  justify-content: left !important;
+  align-items: center !important;
 }
