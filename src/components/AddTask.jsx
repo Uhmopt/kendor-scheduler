@@ -353,8 +353,14 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
                   min={1}
                   width="20%"
                   style={{ marginRight: "1%" }}
+                  disabled={ron !== "D"}
                 />
-                <NumericTextBox defaultValue={1} min={1} width="45%" />
+                <NumericTextBox
+                  defaultValue={1}
+                  min={1}
+                  width="45%"
+                  disabled={ron !== "D"}
+                />
               </div>
               <div className="row pr-10">
                 <RadioButton

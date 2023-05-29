@@ -286,7 +286,12 @@ const Home = () => {
         </IntlProvider>
       </LocalizationProvider>
       {visible && (
-        <Dialog title={"Event"} onClose={toggleDialog}>
+        <Dialog
+          title={"Event"}
+          onClose={toggleDialog}
+          height={"95%"}
+          maxWidth={"70%"}
+        >
           <EventDlg onEvent={onEvent} />
         </Dialog>
       )}
