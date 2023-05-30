@@ -130,18 +130,25 @@ const Home = () => {
     }
     let start = new Date();
     let end = new Date();
+    let date;
 
     if (Edata.isAllDay) start.setTime(0);
     else start.setTime(Edata.start_time.getTime());
-    start.setHours(Edata.start_time.getHours() + 8);
+    start.setHours(Edata.start_time.getHours());
+    start.setMilliseconds(start.getMilliseconds() + 8 * 3600 * 1000); // add 8 hours
+    date = Edata.start_date.getDate();
+    if (start.getHours() <= 8) start.setDate(date + 1);
+    else start.setDate(date);
     start.setDate(Edata.start_date.getDate());
     start.setMonth(Edata.start_date.getMonth());
     start.setFullYear(new Date().getFullYear());
 
     if (Edata.isAllDay) end.setTime(0);
     else end.setTime(Edata.end_time.getTime());
-    end.setHours(Edata.end_time.getHours() + 8);
-    end.setDate(Edata.end_date.getDate());
+    end.setMilliseconds(end.getMilliseconds() + 8 * 3600 * 1000); // add 8 hours
+    date = Edata.end_date.getDate();
+    if (end.getHours() <= 8) end.setDate(date + 1);
+    else end.setDate(date);
     end.setMonth(Edata.end_date.getMonth());
     end.setFullYear(new Date().getFullYear());
 
@@ -293,7 +300,7 @@ const Home = () => {
         <Dialog
           title={"Event"}
           onClose={toggleDialog}
-          height={"95%"}
+          height={"90%"}
           maxWidth={"70%"}
         >
           <EventDlg onEvent={onEvent} />

@@ -1,84 +1,13 @@
 import * as React from "react";
-import {
-  Input,
-  Checkbox,
-  TextArea,
-  NumericTextBox,
-  RadioGroup,
-  RadioButton,
-} from "@progress/kendo-react-inputs";
+import { Input, Checkbox, TextArea } from "@progress/kendo-react-inputs";
 import { Label } from "@progress/kendo-react-labels";
 import { DatePicker, TimePicker } from "@progress/kendo-react-dateinputs";
-import { TabStrip, TabStripTab } from "@progress/kendo-react-layout";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { ButtonGroup, Button } from "@progress/kendo-react-buttons";
-
-const roomdata = ["Meeting Room 101", "Meeting Room 201"];
-const persondata = ["Peter", "Alex"];
-const MonthData = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-const DayData = [
-  "Day",
-  "Weekday",
-  "WeekendDay",
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-const nowDay = new Number(new Date().getDay());
-const repeat_rdata = [
-  {
-    label: "Never",
-    value: "Never",
-  },
-  {
-    label: "After",
-    value: "After",
-  },
-  {
-    label: "On",
-    value: "On",
-  },
-];
+import { Daily, Weekly, Monthly, Yearly } from "./Repeat";
+import { roomdata, persondata, timezonedata } from "./Repeat/utils";
 
 const ModalDlg = ({ onEvent = (Edata) => {} }) => {
-  const [datevalue, setDateValue] = React.useState(new Date());
-  const changeDate = ({ value }) => {
-    setDateValue(value);
-  };
-
-  // Repeat-Tab ChangeEvent
-  const [tabSelected, setTabSelected] = React.useState(0);
-  const handleTabSelect = (e) => {
-    setTabSelected(e.selected);
-  };
-
-  // Repeat-radio ChangeEvent
-  const [rval, setRval] = React.useState("Never");
-  const onChangeRptRadio = (e) => {
-    setRval(e.value);
-  };
-  const [ron, setRon] = React.useState("D");
-  const ChangeRepeatOn = (e) => {
-    setRon(e.value);
-  };
-
   // Event_Data
   const [EventData, setEventData] = React.useState({
     title: "",
@@ -118,17 +47,27 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
     onEvent("Cancel");
   };
 
+  // 'Repeat' of BottonGroup
+  const [rpton, setRpton] = React.useState("NEVER");
+  const ClickBtnGroup = (e) => {
+    setRpton(e.target.innerText);
+  };
+
+  // 'TimeZone' of CheckBox
+  const [timezone, setTimezone] = React.useState(false);
+  const ChangeChecked = () => {
+    setTimezone(!timezone);
+  };
+
   return (
     <div style={{ padding: 2 }}>
       {/* 'Title' */}
-      <div className="row">
-        <div className="col-12 pr-10">
-          <Label>Title</Label>
-          <Input name="title" onChange={onChangeValue} />
-        </div>
+      <Label>Title</Label>
+      <div className="row mb-3">
+        <Input name="title" onChange={onChangeValue} />
       </div>
 
-      {/* 'Start' & 'End' of DateTimes */}
+      {/* 'Start' of DateTimes */}
       <div className="row">
         <div className="col-8 pr-10">
           <Label>Start</Label>
@@ -152,10 +91,26 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
         </div>
         <div className="col-4">
           <br />
-          <Checkbox label="Specify Time Zone" defaultChecked={false} />
+          <Checkbox
+            label="Specify Time Zone"
+            defaultChecked={false}
+            onClick={ChangeChecked}
+          />
         </div>
       </div>
 
+      {/* Specify Time zone */}
+      <Label style={{ display: timezone ? "" : "none" }}>Start Time Zone</Label>
+      <div className="row">
+        <DropDownList
+          style={{ display: timezone ? "" : "none" }}
+          data={timezonedata}
+          name="timezone"
+          required
+        />
+      </div>
+
+      {/* 'End' of DateTimes */}
       <div className="row">
         <div className="col-8 pr-10">
           <Label>End</Label>
@@ -192,280 +147,50 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
 
       {/* Repeat */}
       <Label>Repeat</Label>
-      <div className="row">
-        <div className="col-12">
-          <TabStrip selected={tabSelected} onSelect={handleTabSelect}>
-            <TabStripTab title="NEVER"></TabStripTab>
-
-            <TabStripTab title="DAILY">
-              <Label>Repeat every</Label>
-              <div className="row">
-                <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} min={1} />
-                </div>
-                <div className="col-1">{"day(s)"}</div>
-              </div>
-              <Label>End</Label>
-              <div className="row">
-                <div className="col-2">
-                  <RadioGroup
-                    data={repeat_rdata}
-                    defaultValue={rval}
-                    value={rval}
-                    name="rpt"
-                    onChange={onChangeRptRadio}
-                  />
-                </div>
-                <div className="col-6">
-                  <br />
-                  <NumericTextBox
-                    defaultValue={1}
-                    min={1}
-                    width={80}
-                    style={{ margin: "1% 0" }}
-                    name="after_rpt"
-                    disabled={rval !== "After"}
-                  />
-                  occourence(s)
-                  <DatePicker
-                    value={datevalue}
-                    onChange={changeDate}
-                    disabled={rval !== "On"}
-                    name="On_rpt"
-                  />
-                </div>
-              </div>
-            </TabStripTab>
-
-            <TabStripTab title="WEEKLY">
-              <Label>Repeat every</Label>
-              <div className="row">
-                <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} min={1} max={5} />
-                </div>
-                <div className="col-1">{"week(s)"}</div>
-              </div>
-              <Label>Repeat On</Label>
-              <div className="row pr-10">
-                <ButtonGroup>
-                  <Button togglable={true}>SUN</Button>
-                  <Button togglable={true}>MON</Button>
-                  <Button togglable={true}>TUE</Button>
-                  <Button togglable={true}>WED</Button>
-                  <Button togglable={true}>THU</Button>
-                  <Button togglable={true}>FRI</Button>
-                  <Button togglable={true}>SAT</Button>
-                </ButtonGroup>
-              </div>
-              <Label>End</Label>
-              <div className="row">
-                <div className="col-2">
-                  <RadioGroup
-                    data={repeat_rdata}
-                    defaultValue={"Never"}
-                    value={rval}
-                    name="rpt"
-                    onChange={onChangeRptRadio}
-                  />
-                </div>
-                <div className="col-6">
-                  <br />
-                  <NumericTextBox
-                    defaultValue={1}
-                    min={1}
-                    width={80}
-                    style={{ margin: "1% 0" }}
-                    name="after_rpt"
-                    disabled={rval !== "After"}
-                  />
-                  occourence(s)
-                  <DatePicker
-                    value={datevalue}
-                    onChange={changeDate}
-                    disabled={rval !== "On"}
-                    name="On_rpt"
-                  />
-                </div>
-              </div>
-            </TabStripTab>
-
-            <TabStripTab title="MONTHLY">
-              <Label>Repeat every</Label>
-              <div className="row">
-                <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} min={1} max={12} />
-                </div>
-                <div className="col-1">{"month(s)"}</div>
-              </div>
-              <Label>Repeat On</Label>
-              <div className="row pr-10">
-                <RadioButton
-                  label="Day"
-                  name="Day"
-                  value="D"
-                  onChange={ChangeRepeatOn}
-                  checked={ron === "D"}
-                />
-                <div className="col-6">
-                  <NumericTextBox
-                    defaultValue={new Date().getDate()}
-                    min={1}
-                    max={31}
-                    disabled={ron !== "D"}
-                    style={{
-                      minWidth: "80px",
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="row pr-10">
-                <RadioButton
-                  name="First"
-                  value="F"
-                  onChange={ChangeRepeatOn}
-                  checked={ron === "F"}
-                ></RadioButton>
-                <DropDownList
-                  data={["First", "Second", "Third", "Fourth", "Last"]}
-                  defaultValue={"First"}
-                  style={{
-                    width: "20%",
-                    minWidth: "100px",
-                    marginRight: "2%",
-                    marginLeft: "1%",
-                  }}
-                  disabled={ron !== "F"}
-                />
-                <DropDownList
-                  data={DayData}
-                  defaultValue={"Day"}
-                  disabled={ron !== "F"}
-                  style={{ width: "27%", minWidth: "110px" }}
-                />
-              </div>
-              <Label>End</Label>
-              <div className="row">
-                <div className="col-2">
-                  <RadioGroup
-                    data={repeat_rdata}
-                    defaultValue={"Never"}
-                    value={rval}
-                    name="rpt"
-                    onChange={onChangeRptRadio}
-                  />
-                </div>
-                <div className="col-6">
-                  <br />
-                  <NumericTextBox
-                    defaultValue={1}
-                    min={1}
-                    width={80}
-                    style={{ margin: "1% 0" }}
-                    name="after_rpt"
-                    disabled={rval !== "After"}
-                  />
-                  occourence(s)
-                  <DatePicker
-                    value={datevalue}
-                    onChange={changeDate}
-                    disabled={rval !== "On"}
-                    name="On_rpt"
-                  />
-                </div>
-              </div>
-            </TabStripTab>
-
-            <TabStripTab title="YEARLY">
-              <Label>Repeat every</Label>
-              <div className="row">
-                <div className="col-10 p-0 mb-3">
-                  <NumericTextBox defaultValue={1} min={1} />
-                </div>
-                <div className="col-1">{"year(s)"}</div>
-              </div>
-              <Label>Repeat On</Label>
-              <div className="row pr-10">
-                <RadioButton
-                  name="Day"
-                  value="D"
-                  onChange={ChangeRepeatOn}
-                  checked={ron === "D"}
-                />
-                <DropDownList
-                  data={MonthData}
-                  defaultValue={MonthData[new Date().getMonth()]}
-                  style={{ marginRight: "1%", width: "40%", marginLeft: "2%" }}
-                  disabled={ron !== "D"}
-                />
-                <NumericTextBox
-                  defaultValue={new Date().getDate()}
-                  min={1}
-                  max={31}
-                  width="20%"
-                  disabled={ron !== "D"}
-                />
-              </div>
-              <div className="row pr-10">
-                <RadioButton
-                  name="First"
-                  value="F"
-                  onChange={ChangeRepeatOn}
-                  checked={ron === "F"}
-                />
-                <DropDownList
-                  data={["First", "Second", "Third", "Fourth", "Last"]}
-                  defaultValue={"First"}
-                  disabled={ron !== "F"}
-                  style={{ width: "22%", marginRight: "2%", marginLeft: "2%" }}
-                />
-                <DropDownList
-                  data={DayData}
-                  defaultValue={"Day"}
-                  disabled={ron !== "F"}
-                  style={{ width: "25%", marginRight: "2%" }}
-                />
-                {` of `}
-                <DropDownList
-                  data={MonthData}
-                  defaultValue={MonthData[new Date().getMonth()]}
-                  disabled={ron !== "F"}
-                  style={{ width: "25%", marginLeft: "2%" }}
-                />
-              </div>
-              <Label>End</Label>
-              <div className="row">
-                <div className="col-2">
-                  <RadioGroup
-                    data={repeat_rdata}
-                    defaultValue={"Never"}
-                    value={rval}
-                    name="rpt"
-                    onChange={onChangeRptRadio}
-                  />
-                </div>
-                <div className="col-8">
-                  <br />
-                  <NumericTextBox
-                    defaultValue={1}
-                    min={1}
-                    width={80}
-                    style={{ margin: "1% 0" }}
-                    name="after_rpt"
-                    disabled={rval !== "After"}
-                  />
-                  occourence(s)
-                  <DatePicker
-                    value={datevalue}
-                    onChange={changeDate}
-                    disabled={rval !== "On"}
-                    name="On_rpt"
-                  />
-                </div>
-              </div>
-            </TabStripTab>
-          </TabStrip>
-        </div>
+      <div className="row p-0 mt-2 mb-3">
+        <ButtonGroup width="100%" className="btn_group">
+          <Button
+            togglable={true}
+            selected={rpton === "NEVER"}
+            onClick={ClickBtnGroup}
+          >
+            NEVER
+          </Button>
+          <Button
+            togglable={true}
+            selected={rpton === "DAILY"}
+            onClick={ClickBtnGroup}
+          >
+            DAILY
+          </Button>
+          <Button
+            togglable={true}
+            selected={rpton === "WEEKLY"}
+            onClick={ClickBtnGroup}
+          >
+            WEEKLY
+          </Button>
+          <Button
+            togglable={true}
+            selected={rpton === "MONTHLY"}
+            onClick={ClickBtnGroup}
+          >
+            MONTHLY
+          </Button>
+          <Button
+            togglable={true}
+            selected={rpton === "YEARLY"}
+            onClick={ClickBtnGroup}
+          >
+            YEARLY
+          </Button>
+        </ButtonGroup>
       </div>
+
+      {rpton === "DAILY" && <Daily />}
+      {rpton === "WEEKLY" && <Weekly />}
+      {rpton === "MONTHLY" && <Monthly />}
+      {rpton === "YEARLY" && <Yearly />}
 
       {/* Description */}
       <div className="row">
