@@ -54,9 +54,14 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
   };
 
   // 'TimeZone' of CheckBox
-  const [timezone, setTimezone] = React.useState(false);
-  const ChangeChecked = () => {
-    setTimezone(!timezone);
+  const [timezone_s, setTimezone_s] = React.useState(false);
+  const ChangeChecked_s = () => {
+    setTimezone_s(!timezone_s);
+  };
+
+  const [timezone_e, setTimezone_e] = React.useState(false);
+  const ChangeChecked_e = () => {
+    setTimezone_e(!timezone_e);
   };
 
   return (
@@ -69,7 +74,7 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
 
       {/* 'Start' of DateTimes */}
       <div className="row">
-        <div className="col-8 pr-10">
+        <div className="col-6 pr-10">
           <Label>Start</Label>
           <div className="row">
             <div className="col-6 p-0">
@@ -89,30 +94,32 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
             </div>
           </div>
         </div>
-        <div className="col-4">
+        <div className="col-6">
           <br />
           <Checkbox
             label="Specify Time Zone"
             defaultChecked={false}
-            onClick={ChangeChecked}
+            onClick={ChangeChecked_s}
           />
         </div>
       </div>
 
       {/* Specify Time zone */}
-      <Label style={{ display: timezone ? "" : "none" }}>Start Time Zone</Label>
-      <div className="row">
+      <Label style={{ display: timezone_s ? "" : "none" }}>
+        Start Time Zone
+      </Label>
+      <div className="row p-0 m-0">
         <DropDownList
-          style={{ display: timezone ? "" : "none" }}
+          style={{ display: timezone_s ? "" : "none" }}
           data={timezonedata}
-          name="timezone"
+          name="timezone_s"
           required
         />
       </div>
 
       {/* 'End' of DateTimes */}
       <div className="row">
-        <div className="col-8 pr-10">
+        <div className="col-6 pr-10 mr-10">
           <Label>End</Label>
           <div className="row">
             <div className="col-6 p-0">
@@ -132,6 +139,28 @@ const ModalDlg = ({ onEvent = (Edata) => {} }) => {
             </div>
           </div>
         </div>
+        <div className="col-5 p-0">
+          <br />
+          <Checkbox
+            label={timezone_s ? "End TimeZone" : ""}
+            defaultChecked={false}
+            onClick={ChangeChecked_e}
+            style={{ display: timezone_s ? "" : "none" }}
+          />
+        </div>
+      </div>
+
+      {/* Specify Time zone */}
+      <Label style={{ display: timezone_e ? "" : "none" }}>
+        Start Time Zone
+      </Label>
+      <div className="row p-0 m-0">
+        <DropDownList
+          style={{ display: timezone_e & timezone_s ? "" : "none" }}
+          data={timezonedata}
+          name="timezone_e"
+          required
+        />
       </div>
       <br />
 
