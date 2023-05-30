@@ -182,8 +182,9 @@ const Home = () => {
           <div className="col mb-3">
             <h5>Locale:</h5>
             <DropDownList
-              value={locale}
-              onChange={handleLocaleChange}
+              // value={locale}
+              // onChange={handleLocaleChange}
+              defaultValue={locale}
               data={locales}
               textField="language"
               dataItemKey="locale"
